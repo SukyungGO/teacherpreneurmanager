@@ -30,17 +30,35 @@
 .ftag.on .fcnt{background:rgba(255,255,255,.22)}
 .add-evt{margin-left:auto;font-size:12px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer;display:flex;align-items:center;gap:5px;font-weight:500;transition:all .12s;flex-shrink:0}
 .add-evt:hover{background:var(--color-background-secondary)}
-.add-form{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:14px}
-.form-h{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:14px}
-.fgrid{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:10px}
-.fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.fg{display:flex;flex-direction:column;gap:4px}
-.fl{font-size:11px;color:var(--color-text-secondary)}
-.fi,.fsel{width:100%;font-size:13px;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);outline:none;transition:border-color .1s}
-.fi:focus,.fsel:focus{border-color:var(--color-text-primary)}
-.fbtns{display:flex;gap:8px;justify-content:flex-end}
-.bcx{font-size:12px;padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer}
-.bok{font-size:12px;padding:6px 16px;border-radius:var(--border-radius-md);border:none;background:var(--color-text-primary);color:var(--color-background-primary);cursor:pointer;font-weight:500}
+/* 일정 추가/수정 모달 */
+.modal-root{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999}
+.modal-root.show{display:flex}
+.modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(2px)}
+.modal-panel{position:relative;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;background:#fff;border:1px solid var(--color-border-secondary);border-radius:16px;box-shadow:0 20px 60px rgba(15,23,42,.18);padding:0}
+.modal-topline{height:4px;background:#111;border-radius:16px 16px 0 0}
+.modal-topline.edit{background:#378ADD}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;border-bottom:1px solid var(--color-border-tertiary)}
+.modal-title{font-size:16px;font-weight:600;color:var(--color-text-primary)}
+.modal-close{background:none;border:none;cursor:pointer;width:32px;height:32px;border-radius:8px;color:var(--color-text-tertiary);display:inline-flex;align-items:center;justify-content:center;transition:all .12s}
+.modal-close:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.add-form{padding:18px 20px 20px}
+.form-h{display:none}
+.fgrid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.fgrid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fg{display:flex;flex-direction:column;gap:6px}
+.fl{font-size:11px;color:var(--color-text-tertiary)}
+.fi,.fsel{width:100%;font-size:13px;padding:9px 11px;border:1px solid var(--color-border-secondary);border-radius:10px;background:var(--color-background-primary);color:var(--color-text-primary);outline:none;transition:border-color .12s, box-shadow .12s}
+.fi:focus,.fsel:focus{border-color:#378ADD;box-shadow:0 0 0 3px rgba(55,138,221,.12)}
+.fbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.bcx{font-size:12px;padding:8px 14px;border-radius:10px;border:1px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);cursor:pointer}
+.bok{font-size:12px;padding:8px 16px;border-radius:10px;border:none;background:#111;color:#fff;cursor:pointer;font-weight:600;transition:background .12s}
+.bok:hover{background:#333}
+@media (max-width:720px){
+  .modal-panel{width:min(100vw - 20px,640px)}
+  .modal-head{padding:16px 16px 10px}
+  .add-form{padding:16px}
+  .fgrid,.fgrid2{grid-template-columns:1fr}
+}
 .sec-block{border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);margin-bottom:14px;overflow:hidden}
 .sec-block.urg-block{border-color:#F09595;border-left:3px solid #E24B4A}
 .sec-block.soon-block{border-color:#FAC775;border-left:3px solid #EF9F27}
@@ -107,56 +125,17 @@
 .dbno{font-size:11px;padding:3px 10px;border-radius:4px;border:0.5px solid #F09595;background:transparent;color:#A32D2D;cursor:pointer}
 .cl-wrap{max-height:0;overflow:hidden;transition:max-height .32s ease}
 .cl-wrap.op{max-height:5000px}
-.cl-inner{
-  border-top:0.5px solid var(--color-border-tertiary);
-  background:var(--color-background-secondary);
-  padding:.4rem 1rem .75rem;
-  text-align:left;
-}
-.cl-row{
-  display:flex;
-  align-items:flex-start;
-  justify-content:flex-start;
-  gap:10px;
-  padding:7px 4px;
-  border-radius:5px;
-  transition:background .1s;
-  text-align:left;
-}
+.cl-inner{border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);padding:.4rem 1rem .75rem;text-align:left}
+.cl-row{display:flex;align-items:flex-start;justify-content:flex-start;gap:10px;padding:7px 4px;border-radius:5px;transition:background .1s;text-align:left}
 .cl-row:hover{background:var(--color-background-primary)}
 .cl-ract{opacity:0;transition:opacity .12s;flex-shrink:0}
-.cl-row:hover .cl-ract{opacity:1}
+.cl-row:hover .cl-ract,.cl-row.editing .cl-ract{opacity:1}
 .cl-sep{height:0.5px;background:var(--color-border-tertiary);margin:0 4px}
 .cl-cb{width:15px;height:15px;margin-top:2px;flex-shrink:0;cursor:pointer;accent-color:#378ADD}
-.cl-body{
-  flex:1;
-  min-width:0;
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:8px;
-  text-align:left;
-}
-.cl-t{
-  font-size:13px;
-  color:var(--color-text-primary);
-  flex:1;
-  line-height:1.45;
-  text-align:left;
-}
+.cl-body{flex:1;min-width:0;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;text-align:left}
+.cl-t{font-size:13px;color:var(--color-text-primary);flex:1;line-height:1.45;text-align:left}
 .cl-t.x{text-decoration:line-through;color:var(--color-text-tertiary)}
-.cl-w{
-  font-size:10px;
-  padding:2px 6px;
-  border-radius:3px;
-  background:var(--color-background-primary);
-  border:0.5px solid var(--color-border-tertiary);
-  color:var(--color-text-secondary);
-  white-space:nowrap;
-  flex-shrink:0;
-  margin-top:2px;
-  text-align:left;
-}
+.cl-w{font-size:10px;padding:2px 6px;border-radius:3px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);white-space:nowrap;flex-shrink:0;margin-top:2px;text-align:left}
 .cl-del-bar{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#FCEBEB;border-radius:5px;margin:2px 4px;font-size:12px;color:#791F1F}
 .add-cl-t{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-tertiary);cursor:pointer;padding:8px 4px 2px;margin-top:2px;transition:color .1s}
 .add-cl-t:hover{color:var(--color-text-secondary)}
@@ -189,6 +168,7 @@
 <div class="tabnav" id="tabnav"></div>
 <div id="main-content" style="text-align:center;padding:3rem;color:var(--color-text-tertiary);font-size:14px">데이터 불러오는 중...</div>
 </div>
+<div id="modal-root" class="modal-root"></div>
 
 <script>
 const API_URL='https://script.google.com/a/macros/asan-nanum.org/s/AKfycbyKlXnM8k-iHlA6W5zwc81HkR_7E23Dp0lR0ILDgGmfR0toeEYjzuqV7ouWEsNSLq_5/exec';
@@ -321,31 +301,24 @@ function cardH(e){
   const rows=e.cl.map((c,i)=>{
     const done=cs[e.id]?.[c.id];
     const isCDC=delClConf===`${e.id}:${c.id}`;
+    const isEditing=editingCl===`${e.id}:${c.id}`;
     if(isCDC)return`<div class="cl-del-bar">"${c.t.length>20?c.t.slice(0,20)+'…':c.t}" 항목을 삭제할까요?
       <div class="del-bar-btns" style="margin-left:auto"><button class="dbyes" onclick="doCl('${e.id}',${c.id})">삭제</button><button class="dbno" onclick="delClConf=null;rSchedule()">취소</button></div></div>`;
-    if(editingCl===`${e.id}:${c.id}`){
-      return`<div class="cl-row">
-        <input type="checkbox" class="cl-cb" ${done?'checked':''} onchange="ck('${e.id}',${c.id},this.checked)" onclick="event.stopPropagation()">
-        <div class="cl-body" style="gap:6px;align-items:center">
-          <input class="cli" id="edit-clt-${e.id}-${c.id}" value="${String(c.t).replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveClEdit('${e.id}',${c.id});if(event.key==='Escape')cancelClEdit()">
-          <input class="clw" id="edit-clw-${e.id}-${c.id}" value="${String(c.w).replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveClEdit('${e.id}',${c.id});if(event.key==='Escape')cancelClEdit()">
-        </div>
-        <span class="cl-ract" style="opacity:1">
-          <button class="ib" onclick="event.stopPropagation();saveClEdit('${e.id}',${c.id})" title="저장" style="color:#185FA5">✓</button>
-          <button class="ib del" onclick="event.stopPropagation();cancelClEdit()" title="취소">✕</button>
-        </span>
-      </div>${i<e.cl.length-1?'<div class="cl-sep"></div>':''}`;
-    }
+    if(isEditing)return`<div class="cl-row editing">
+      <input type="checkbox" class="cl-cb" ${done?'checked':''} onchange="ck('${e.id}',${c.id},this.checked)" onclick="event.stopPropagation()">
+      <div class="cl-body" style="gap:6px;align-items:center">
+        <input class="cli" id="edit-clt-${e.id}-${c.id}" value="${String(c.t).replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveClEdit('${e.id}',${c.id});if(event.key==='Escape')cancelClEdit()">
+        <input class="clw" id="edit-clw-${e.id}-${c.id}" value="${String(c.w).replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveClEdit('${e.id}',${c.id});if(event.key==='Escape')cancelClEdit()">
+      </div>
+      <span class="cl-ract" style="opacity:1">
+        <button class="ib" onclick="event.stopPropagation();saveClEdit('${e.id}',${c.id})" title="저장" style="color:#185FA5;font-size:14px">✓</button>
+        <button class="ib del" onclick="event.stopPropagation();cancelClEdit()" title="취소" style="font-size:14px">✕</button>
+      </span>
+    </div>${i<e.cl.length-1?'<div class="cl-sep"></div>':''}`;
     return`<div class="cl-row">
       <input type="checkbox" class="cl-cb" ${done?'checked':''} onchange="ck('${e.id}',${c.id},this.checked)" onclick="event.stopPropagation()">
-      <div class="cl-body">
-        <span class="cl-t${done?' x':''}">${c.t}</span>
-        <span class="cl-w">${c.w}</span>
-      </div>
-      <span class="cl-ract">
-        <button class="ib" onclick="event.stopPropagation();editCl('${e.id}',${c.id}')" title="항목 수정">${E}</button>
-        <button class="ib del" onclick="event.stopPropagation();delClConf='${e.id}:${c.id}';rSchedule()" title="항목 삭제">${T}</button>
-      </span>
+      <div class="cl-body"><span class="cl-t${done?' x':''}">${c.t}</span><span class="cl-w">${c.w}</span></div>
+      <span class="cl-ract"><button class="ib" onclick="event.stopPropagation();editCl('${e.id}',${c.id}')" title="항목 수정">${E}</button><button class="ib del" onclick="event.stopPropagation();delClConf='${e.id}:${c.id}';rSchedule()" title="항목 삭제">${T}</button></span>
     </div>${i<e.cl.length-1?'<div class="cl-sep"></div>':''}`;
   }).join('');
   const addBar=isAO?`<div class="add-cl-bar">
@@ -388,37 +361,6 @@ function rSchedule(){
     <button class="add-evt" onclick="tForm()">${P}&nbsp;&nbsp;일정 추가</button>
   </div>`;
   const editingEvent=editingId?events.find(e=>e.id===editingId):null;
-const fw=showF?`<div class="add-form"><div class="form-h">${editingEvent?'일정 수정':'새 일정 추가'}</div>
-  <div class="fgrid">
-    <div class="fg">
-      <label class="fl">일정 제목</label>
-      <input class="fi" id="fi-t" placeholder="제목을 입력하세요" value="${editingEvent?editingEvent.title:''}">
-    </div>
-    <div class="fg">
-      <label class="fl">카테고리</label>
-      <select class="fsel" id="fi-c">
-        <option ${editingEvent?.cat==='정기기수'?'selected':''}>정기기수</option>
-        <option ${editingEvent?.cat==='동문프로그램'?'selected':''}>동문프로그램</option>
-        <option ${editingEvent?.cat==='단기워크숍'?'selected':''}>단기워크숍</option>
-        <option ${editingEvent?.cat==='품결의'?'selected':''}>품결의</option>
-      </select>
-    </div>
-  </div>
-  <div class="fgrid2">
-    <div class="fg">
-      <label class="fl">시작일</label>
-      <input class="fi" id="fi-s" type="date" value="${editingEvent?editingEvent.start:today}">
-    </div>
-    <div class="fg">
-      <label class="fl">종료일</label>
-      <input class="fi" id="fi-e" type="date" value="${editingEvent?editingEvent.end:today}">
-    </div>
-  </div>
-  <div class="fbtns">
-    <button class="bcx" onclick="tForm()">취소</button>
-    <button class="bok" onclick="subE()">${editingEvent?'수정 저장':'추가하기'}</button>
-  </div>
-</div>`:'';
   const f=af==='전체'?events:events.filter(e=>e.cat===af);
   const urg=f.filter(e=>{const d=gd(e.start),de=gd(e.end);return de>=0&&((d<=0&&de>=0)||d<=7);});
   const soon=f.filter(e=>{const d=gd(e.start);return gd(e.end)>=0&&d>7&&d<=30;});
@@ -426,8 +368,64 @@ const fw=showF?`<div class="add-form"><div class="form-h">${editingEvent?'일정
   const body=!urg.length&&!soon.length&&!come.length
     ?`<div class="empty">해당 카테고리의 일정이 없습니다</div>`
     :secBlock('urg','지금 조치 필요',urg)+secBlock('soon','이달 내 준비',soon)+secBlock('come','예정',come);
-  document.getElementById('main-content').innerHTML=ftrs+fw+body;
-  if(showF)setTimeout(()=>document.getElementById('fi-t')?.focus(),30);}
+  document.getElementById('main-content').innerHTML=ftrs+body;
+  renderModal();}
+
+
+function renderModal(){
+  const root=document.getElementById('modal-root');
+  if(!root)return;
+  const editingEvent=editingId?events.find(e=>e.id===editingId):null;
+  if(!showF){
+    root.className='modal-root';
+    root.innerHTML='';
+    return;
+  }
+  root.className='modal-root show';
+  root.innerHTML=`<div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-label="${editingEvent?'일정 수정':'새 일정 추가'}" onclick="event.stopPropagation()">
+      <div class="modal-topline ${editingEvent?'edit':''}"></div>
+      <div class="modal-head">
+        <div class="modal-title">${editingEvent?'✏️ 일정 수정':'＋ 새 일정 추가'}</div>
+        <button class="modal-close" onclick="closeModal()" aria-label="닫기">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+        </button>
+      </div>
+      <div class="add-form">
+        <div class="form-h">${editingEvent?'일정 수정':'새 일정 추가'}</div>
+        <div class="fgrid">
+          <div class="fg">
+            <label class="fl">일정 제목</label>
+            <input class="fi" id="fi-t" placeholder="제목을 입력하세요" value="${editingEvent?editingEvent.title:''}">
+          </div>
+          <div class="fg">
+            <label class="fl">카테고리</label>
+            <select class="fsel" id="fi-c">
+              <option ${editingEvent?.cat==='정기기수'?'selected':''}>정기기수</option>
+              <option ${editingEvent?.cat==='동문프로그램'?'selected':''}>동문프로그램</option>
+              <option ${editingEvent?.cat==='단기워크숍'?'selected':''}>단기워크숍</option>
+              <option ${editingEvent?.cat==='품결의'?'selected':''}>품결의</option>
+            </select>
+          </div>
+        </div>
+        <div class="fgrid2">
+          <div class="fg">
+            <label class="fl">시작일</label>
+            <input class="fi" id="fi-s" type="date" value="${editingEvent?editingEvent.start:todayStr()}">
+          </div>
+          <div class="fg">
+            <label class="fl">종료일</label>
+            <input class="fi" id="fi-e" type="date" value="${editingEvent?editingEvent.end:todayStr()}">
+          </div>
+        </div>
+        <div class="fbtns">
+          <button class="bcx" onclick="closeModal()">취소</button>
+          <button class="bok" onclick="subE()">${editingEvent?'수정 저장':'추가하기'}</button>
+        </div>
+      </div>
+    </div>`;
+  setTimeout(()=>document.getElementById('fi-t')?.focus(),30);
+}
 
 function trashCardH(e){
   const isPDC=pdelConf===e.id;
@@ -458,21 +456,48 @@ function rTrash(){
     :trash.map(trashCardH).join('');
   document.getElementById('main-content').innerHTML=caBtn+body;}
 
-function render(){saveAll();rSmry();rTabNav();activeTab==='schedule'?rSchedule():rTrash();}
+function render(){saveAll();rSmry();rTabNav();activeTab==='schedule'?rSchedule():rTrash();renderModal();}
 
 window.setTab=t=>{activeTab=t;delConf=null;delClConf=null;pdelConf=null;clearAllConf=false;render();};
 window.sf=c=>{af=c;rSchedule();};
 window.tog=id=>{openId=openId===id?null:id;delClConf=null;rSchedule();};
-window.tForm=()=>{   if(showF){     showF=false;     editingId=null;   }else{     showF=true;   }   rSchedule(); };
-  window.editEvt=id=>{
+window.closeModal=()=>{
+  showF=false;
+  editingId=null;
+  rSchedule();
+};
+window.tForm=()=>{
+  editingId=null;
+  showF=!showF;
+  renderModal();
+};
+window.editEvt=id=>{
   editingId=id;
   showF=true;
   delConf=null;
+  renderModal();
+};
+window.editCl=(eid,cid)=>{
+  editingCl=`${eid}:${cid}`;
+  delClConf=null;
   rSchedule();
-  setTimeout(()=>{
-    document.getElementById('fi-t')?.focus();
-    document.getElementById('fi-t')?.scrollIntoView({behavior:'smooth',block:'center'});
-  },50);
+  setTimeout(()=>document.getElementById(`edit-clt-${eid}-${cid}`)?.focus(),30);
+};
+window.cancelClEdit=()=>{
+  editingCl=null;
+  rSchedule();
+};
+window.saveClEdit=(eid,cid)=>{
+  const t=document.getElementById(`edit-clt-${eid}-${cid}`)?.value.trim();
+  const w=document.getElementById(`edit-clw-${eid}-${cid}`)?.value.trim()||'-';
+  if(!t)return;
+  const ev=events.find(e=>e.id===eid); if(!ev)return;
+  const item=ev.cl.find(x=>x.id===cid); if(!item)return;
+  item.t=t;
+  item.w=w;
+  editingCl=null;
+  saveAll();
+  rSchedule();
 };
 window.tAC=id=>{acOpen[id]=!acOpen[id];rSchedule();if(acOpen[id])setTimeout(()=>document.getElementById('clt-'+id)?.focus(),30);};
 window.ck=(eid,cid,val)=>{cs[eid][cid]=val;saveAll();rSmry();rSchedule();};
@@ -483,7 +508,7 @@ window.doEvt=id=>{
   if(openId===id)openId=null;delete acOpen[id];delConf=null;render();};
 window.doCl=(eid,cid)=>{
   const ev=events.find(e=>e.id===eid);if(ev)ev.cl=ev.cl.filter(c=>c.id!==cid);
-  delete cs[eid][cid];delClConf=null;saveAll();rSmry();rSchedule();};
+  delete cs[eid][cid];delClConf=null;if(editingCl===`${eid}:${cid}`)editingCl=null;saveAll();rSmry();rSchedule();};
 window.restoreEvt=id=>{
   const ev=trash.find(e=>e.id===id);if(!ev)return;
   delete ev.deletedAt;events.push(ev);
@@ -528,37 +553,9 @@ window.sCl=eid=>{
   ev.cl.push({id,t,w});cs[eid][id]=false;
   acOpen[eid]=false;saveAll();rSmry();rSchedule();};
 
-window.editCl=(eid,cid)=>{
-  editingCl=`${eid}:${cid}`;
-  delClConf=null;
-  rSchedule();
-  setTimeout(()=>{
-    document.getElementById(`edit-clt-${eid}-${cid}`)?.focus();
-  },30);
-};
-
-window.cancelClEdit=()=>{
-  editingCl=null;
-  rSchedule();
-};
-
-window.saveClEdit=(eid,cid)=>{
-  const t=document.getElementById(`edit-clt-${eid}-${cid}`)?.value.trim();
-  const w=document.getElementById(`edit-clw-${eid}-${cid}`)?.value.trim() || '-';
-  if(!t)return;
-
-  const ev=events.find(e=>e.id===eid);
-  if(!ev)return;
-
-  const item=ev.cl.find(x=>x.id===cid);
-  if(!item)return;
-
-  item.t=t;
-  item.w=w;
-  editingCl=null;
-  saveAll();
-  rSchedule();
-};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && showF) closeModal();
+});
 
 /* 초기 로드: Sheets 우선 → localStorage 폴백 */
 (async()=>{
