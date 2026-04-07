@@ -159,6 +159,7 @@ const P=`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="cur
 const ARW=`<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l4 4-4 4"/></svg>`;
 const RES=`<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7c0-2.76 2.24-5 5-5a5 5 0 0 1 4.33 2.5"/><path d="M11 2v3H8"/><path d="M11 6c0 2.76-2.24 5-5 5a5 5 0 0 1-4.33-2.5"/></svg>`;
 
+  const E=`<svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9.8 2.2a1.4 1.4 0 0 1 2 2L5 11H2v-3l6.8-5.8Z"/><path d="M8.5 3.5l1 1"/></svg>`;
 /* 오늘 날짜 */
 const TODAY=(()=>{const d=new Date();d.setHours(0,0,0,0);return d;})();
 (()=>{
@@ -224,7 +225,7 @@ let events=[
   {id:'e15',cat:'품결의',title:'스쿨·커뮤니티 결과보고 마감',start:'2026-12-10',end:'2026-12-10',cl:[{id:1,t:'결과보고서 양식 사전 배포',w:'D-30'},{id:2,t:'9월 1차 회계 정산',w:'9월'},{id:3,t:'운영사 결과보고서 1차 검토',w:'D-14'},{id:4,t:'최종 제출 (12/10)',w:'D-DAY'}]},
 ];
 
-let trash=[],cs={},openId=null,af='전체',showF=false,acOpen={};
+let trash=[],cs={},openId=null,af='전체',showF=false,acOpen={},editingId=null;
 let delConf=null,delClConf=null,pdelConf=null,clearAllConf=false,activeTab='schedule';
 let nEid=100,nCid={};
 
@@ -303,7 +304,7 @@ function cardH(e){
         ${tct>0?`<div class="epb"><div class="pbw"><div class="pbf ${pFull?'full':'part'}" style="width:${p}%"></div></div><span class="pcnt">${dct}/${tct} 완료</span></div>`:''}
       </div>
       <div class="emeta"><span class="cbadge c${e.cat}">${e.cat}</span><span class="edate">${fmt(e.start,e.end)}</span></div>
-      <div class="eact"><button class="ib del" onclick="event.stopPropagation();delConf=e.id;rSchedule()" title="휴지통으로 이동">${T}</button></div>
+      <div class="eact">   <button class="ib" onclick="event.stopPropagation();editEvt('${e.id}')" title="일정 수정">${E}</button>   <button class="ib del" onclick="event.stopPropagation();delConf=e.id;rSchedule()" title="휴지통으로 이동">${T}</button> </div>
       <div class="arw${isO?' op':''}">${ARW}</div>
     </div>
     ${isDC?`<div class="conf-bar">"${e.title.length>22?e.title.slice(0,22)+'…':e.title}"을 휴지통으로 이동할까요?<div class="del-bar-btns" style="margin-left:auto"><button class="dbyes" onclick="doEvt('${e.id}')">이동</button><button class="dbno" onclick="delConf=null;rSchedule()">취소</button></div></div>`:''}
@@ -328,12 +329,38 @@ function rSchedule(){
     <div style="display:flex;gap:6px;flex-wrap:wrap">${cats.map(c=>`<span class="ftag${af===c?' on':''}" onclick="sf('${c}')">${c}<span class="fcnt">${cnt(c)}</span></span>`).join('')}</div>
     <button class="add-evt" onclick="tForm()">${P}&nbsp;&nbsp;일정 추가</button>
   </div>`;
-  const fw=showF?`<div class="add-form"><div class="form-h">새 일정 추가</div>
-    <div class="fgrid"><div class="fg"><label class="fl">일정 제목</label><input class="fi" id="fi-t" placeholder="제목을 입력하세요"></div>
-    <div class="fg"><label class="fl">카테고리</label><select class="fsel" id="fi-c"><option>정기기수</option><option>동문프로그램</option><option>단기워크숍</option><option>품결의</option></select></div></div>
-    <div class="fgrid2"><div class="fg"><label class="fl">시작일</label><input class="fi" id="fi-s" type="date" value="${today}"></div>
-    <div class="fg"><label class="fl">종료일</label><input class="fi" id="fi-e" type="date" value="${today}"></div></div>
-    <div class="fbtns"><button class="bcx" onclick="tForm()">취소</button><button class="bok" onclick="subE()">추가하기</button></div></div>`:'';
+  const editingEvent=editingId?events.find(e=>e.id===editingId):null;
+const fw=showF?`<div class="add-form"><div class="form-h">${editingEvent?'일정 수정':'새 일정 추가'}</div>
+  <div class="fgrid">
+    <div class="fg">
+      <label class="fl">일정 제목</label>
+      <input class="fi" id="fi-t" placeholder="제목을 입력하세요" value="${editingEvent?editingEvent.title:''}">
+    </div>
+    <div class="fg">
+      <label class="fl">카테고리</label>
+      <select class="fsel" id="fi-c">
+        <option ${editingEvent?.cat==='정기기수'?'selected':''}>정기기수</option>
+        <option ${editingEvent?.cat==='동문프로그램'?'selected':''}>동문프로그램</option>
+        <option ${editingEvent?.cat==='단기워크숍'?'selected':''}>단기워크숍</option>
+        <option ${editingEvent?.cat==='품결의'?'selected':''}>품결의</option>
+      </select>
+    </div>
+  </div>
+  <div class="fgrid2">
+    <div class="fg">
+      <label class="fl">시작일</label>
+      <input class="fi" id="fi-s" type="date" value="${editingEvent?editingEvent.start:today}">
+    </div>
+    <div class="fg">
+      <label class="fl">종료일</label>
+      <input class="fi" id="fi-e" type="date" value="${editingEvent?editingEvent.end:today}">
+    </div>
+  </div>
+  <div class="fbtns">
+    <button class="bcx" onclick="tForm()">취소</button>
+    <button class="bok" onclick="subE()">${editingEvent?'수정 저장':'추가하기'}</button>
+  </div>
+</div>`:'';
   const f=af==='전체'?events:events.filter(e=>e.cat===af);
   const urg=f.filter(e=>{const d=gd(e.start),de=gd(e.end);return de>=0&&((d<=0&&de>=0)||d<=7);});
   const soon=f.filter(e=>{const d=gd(e.start);return gd(e.end)>=0&&d>7&&d<=30;});
@@ -378,7 +405,17 @@ function render(){saveAll();rSmry();rTabNav();activeTab==='schedule'?rSchedule()
 window.setTab=t=>{activeTab=t;delConf=null;delClConf=null;pdelConf=null;clearAllConf=false;render();};
 window.sf=c=>{af=c;rSchedule();};
 window.tog=id=>{openId=openId===id?null:id;delClConf=null;rSchedule();};
-window.tForm=()=>{showF=!showF;rSchedule();};
+window.tForm=()=>{   if(showF){     showF=false;     editingId=null;   }else{     showF=true;   }   rSchedule(); };
+  window.editEvt=id=>{
+  editingId=id;
+  showF=true;
+  delConf=null;
+  rSchedule();
+  setTimeout(()=>{
+    document.getElementById('fi-t')?.focus();
+    document.getElementById('fi-t')?.scrollIntoView({behavior:'smooth',block:'center'});
+  },50);
+};
 window.tAC=id=>{acOpen[id]=!acOpen[id];rSchedule();if(acOpen[id])setTimeout(()=>document.getElementById('clt-'+id)?.focus(),30);};
 window.ck=(eid,cid,val)=>{cs[eid][cid]=val;saveAll();rSmry();rSchedule();};
 window.doEvt=id=>{
@@ -402,9 +439,28 @@ window.subE=()=>{
   const s=document.getElementById('fi-s')?.value;
   const e=document.getElementById('fi-e')?.value||s;
   if(!t||!s)return;
+
+  if(editingId){
+    const ev=events.find(x=>x.id===editingId);
+    if(!ev)return;
+    ev.title=t;
+    ev.cat=c;
+    ev.start=s;
+    ev.end=e;
+    showF=false;
+    editingId=null;
+    render();
+    return;
+  }
+
   const id='ev'+nEid++;
   events.push({id,cat:c,title:t,start:s,end:e,cl:[]});
-  cs[id]={};nCid[id]=1;showF=false;render();};
+  cs[id]={};
+  nCid[id]=1;
+  showF=false;
+  editingId=null;
+  render();
+};
 window.sCl=eid=>{
   const t=document.getElementById('clt-'+eid)?.value.trim();
   const w=document.getElementById('clw-'+eid)?.value.trim()||'-';
