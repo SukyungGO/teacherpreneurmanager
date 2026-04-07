@@ -107,17 +107,56 @@
 .dbno{font-size:11px;padding:3px 10px;border-radius:4px;border:0.5px solid #F09595;background:transparent;color:#A32D2D;cursor:pointer}
 .cl-wrap{max-height:0;overflow:hidden;transition:max-height .32s ease}
 .cl-wrap.op{max-height:5000px}
-.cl-inner{border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);padding:.4rem 1rem .75rem}
-.cl-row{display:flex;align-items:flex-start;gap:10px;padding:7px 4px;border-radius:5px;transition:background .1s}
+.cl-inner{
+  border-top:0.5px solid var(--color-border-tertiary);
+  background:var(--color-background-secondary);
+  padding:.4rem 1rem .75rem;
+  text-align:left;
+}
+.cl-row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:10px;
+  padding:7px 4px;
+  border-radius:5px;
+  transition:background .1s;
+  text-align:left;
+}
 .cl-row:hover{background:var(--color-background-primary)}
 .cl-ract{opacity:0;transition:opacity .12s;flex-shrink:0}
 .cl-row:hover .cl-ract{opacity:1}
 .cl-sep{height:0.5px;background:var(--color-border-tertiary);margin:0 4px}
 .cl-cb{width:15px;height:15px;margin-top:2px;flex-shrink:0;cursor:pointer;accent-color:#378ADD}
-.cl-body{flex:1;min-width:0;display:flex;align-items:flex-start;gap:8px}
-.cl-t{font-size:13px;color:var(--color-text-primary);flex:1;line-height:1.45}
+.cl-body{
+  flex:1;
+  min-width:0;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  text-align:left;
+}
+.cl-t{
+  font-size:13px;
+  color:var(--color-text-primary);
+  flex:1;
+  line-height:1.45;
+  text-align:left;
+}
 .cl-t.x{text-decoration:line-through;color:var(--color-text-tertiary)}
-.cl-w{font-size:10px;padding:2px 6px;border-radius:3px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);white-space:nowrap;flex-shrink:0;margin-top:2px}
+.cl-w{
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:3px;
+  background:var(--color-background-primary);
+  border:0.5px solid var(--color-border-tertiary);
+  color:var(--color-text-secondary);
+  white-space:nowrap;
+  flex-shrink:0;
+  margin-top:2px;
+  text-align:left;
+}
 .cl-del-bar{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#FCEBEB;border-radius:5px;margin:2px 4px;font-size:12px;color:#791F1F}
 .add-cl-t{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-tertiary);cursor:pointer;padding:8px 4px 2px;margin-top:2px;transition:color .1s}
 .add-cl-t:hover{color:var(--color-text-secondary)}
@@ -225,7 +264,7 @@ let events=[
   {id:'e15',cat:'품결의',title:'스쿨·커뮤니티 결과보고 마감',start:'2026-12-10',end:'2026-12-10',cl:[{id:1,t:'결과보고서 양식 사전 배포',w:'D-30'},{id:2,t:'9월 1차 회계 정산',w:'9월'},{id:3,t:'운영사 결과보고서 1차 검토',w:'D-14'},{id:4,t:'최종 제출 (12/10)',w:'D-DAY'}]},
 ];
 
-let trash=[],cs={},openId=null,af='전체',showF=false,acOpen={},editingId=null;
+let trash=[],cs={},openId=null,af='전체',showF=false,acOpen={},editingId=null,editingCl=null;
 let delConf=null,delClConf=null,pdelConf=null,clearAllConf=false,activeTab='schedule';
 let nEid=100,nCid={};
 
@@ -284,10 +323,29 @@ function cardH(e){
     const isCDC=delClConf===`${e.id}:${c.id}`;
     if(isCDC)return`<div class="cl-del-bar">"${c.t.length>20?c.t.slice(0,20)+'…':c.t}" 항목을 삭제할까요?
       <div class="del-bar-btns" style="margin-left:auto"><button class="dbyes" onclick="doCl('${e.id}',${c.id})">삭제</button><button class="dbno" onclick="delClConf=null;rSchedule()">취소</button></div></div>`;
+    if(editingCl===`${e.id}:${c.id}`){
+      return`<div class="cl-row">
+        <input type="checkbox" class="cl-cb" ${done?'checked':''} onchange="ck('${e.id}',${c.id},this.checked)" onclick="event.stopPropagation()">
+        <div class="cl-body" style="gap:6px;align-items:center">
+          <input class="cli" id="edit-clt-${e.id}-${c.id}" value="${String(c.t).replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveClEdit('${e.id}',${c.id});if(event.key==='Escape')cancelClEdit()">
+          <input class="clw" id="edit-clw-${e.id}-${c.id}" value="${String(c.w).replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveClEdit('${e.id}',${c.id});if(event.key==='Escape')cancelClEdit()">
+        </div>
+        <span class="cl-ract" style="opacity:1">
+          <button class="ib" onclick="event.stopPropagation();saveClEdit('${e.id}',${c.id})" title="저장" style="color:#185FA5">✓</button>
+          <button class="ib del" onclick="event.stopPropagation();cancelClEdit()" title="취소">✕</button>
+        </span>
+      </div>${i<e.cl.length-1?'<div class="cl-sep"></div>':''}`;
+    }
     return`<div class="cl-row">
       <input type="checkbox" class="cl-cb" ${done?'checked':''} onchange="ck('${e.id}',${c.id},this.checked)" onclick="event.stopPropagation()">
-      <div class="cl-body"><span class="cl-t${done?' x':''}">${c.t}</span><span class="cl-w">${c.w}</span></div>
-      <span class="cl-ract"><button class="ib del" onclick="event.stopPropagation();delClConf='${e.id}:${c.id}';rSchedule()" title="항목 삭제">${T}</button></span>
+      <div class="cl-body">
+        <span class="cl-t${done?' x':''}">${c.t}</span>
+        <span class="cl-w">${c.w}</span>
+      </div>
+      <span class="cl-ract">
+        <button class="ib" onclick="event.stopPropagation();editCl('${e.id}',${c.id}')" title="항목 수정">${E}</button>
+        <button class="ib del" onclick="event.stopPropagation();delClConf='${e.id}:${c.id}';rSchedule()" title="항목 삭제">${T}</button>
+      </span>
     </div>${i<e.cl.length-1?'<div class="cl-sep"></div>':''}`;
   }).join('');
   const addBar=isAO?`<div class="add-cl-bar">
@@ -469,6 +527,38 @@ window.sCl=eid=>{
   const id=nCid[eid]++;
   ev.cl.push({id,t,w});cs[eid][id]=false;
   acOpen[eid]=false;saveAll();rSmry();rSchedule();};
+
+window.editCl=(eid,cid)=>{
+  editingCl=`${eid}:${cid}`;
+  delClConf=null;
+  rSchedule();
+  setTimeout(()=>{
+    document.getElementById(`edit-clt-${eid}-${cid}`)?.focus();
+  },30);
+};
+
+window.cancelClEdit=()=>{
+  editingCl=null;
+  rSchedule();
+};
+
+window.saveClEdit=(eid,cid)=>{
+  const t=document.getElementById(`edit-clt-${eid}-${cid}`)?.value.trim();
+  const w=document.getElementById(`edit-clw-${eid}-${cid}`)?.value.trim() || '-';
+  if(!t)return;
+
+  const ev=events.find(e=>e.id===eid);
+  if(!ev)return;
+
+  const item=ev.cl.find(x=>x.id===cid);
+  if(!item)return;
+
+  item.t=t;
+  item.w=w;
+  editingCl=null;
+  saveAll();
+  rSchedule();
+};
 
 /* 초기 로드: Sheets 우선 → localStorage 폴백 */
 (async()=>{
