@@ -335,10 +335,10 @@ function cardH(e){
         ${tct>0?`<div class="epb"><div class="pbw"><div class="pbf ${pFull?'full':'part'}" style="width:${p}%"></div></div><span class="pcnt">${dct}/${tct} 완료</span></div>`:''}
       </div>
       <div class="emeta"><span class="cbadge c${e.cat}">${e.cat}</span><span class="edate">${fmt(e.start,e.end)}</span></div>
-      <div class="eact">   <button class="ib" onclick="event.stopPropagation();editEvt('${e.id}')" title="일정 수정">${E}</button>   <button class="ib del" onclick="event.stopPropagation();delConf=e.id;rSchedule()" title="휴지통으로 이동">${T}</button> </div>
+      <div class="eact">   <button class="ib" onclick="event.stopPropagation();editEvt('${e.id}')" title="일정 수정">${E}</button>   <button class="ib del" onclick="event.stopPropagation();askEvtDelete('${e.id}')" title="휴지통으로 이동">${T}</button> </div>
       <div class="arw${isO?' op':''}">${ARW}</div>
     </div>
-    ${isDC?`<div class="conf-bar">"${e.title.length>22?e.title.slice(0,22)+'…':e.title}"을 휴지통으로 이동할까요?<div class="del-bar-btns" style="margin-left:auto"><button class="dbyes" onclick="doEvt('${e.id}')">이동</button><button class="dbno" onclick="delConf=null;rSchedule()">취소</button></div></div>`:''}
+    ''
     <div class="cl-wrap${isO?' op':''}">
       <div class="cl-inner">${tct===0&&!isAO?'<div style="font-size:13px;color:var(--color-text-tertiary);padding:4px 0 2px">체크리스트 항목이 없습니다</div>':''}${rows}${addBar}</div>
     </div>
@@ -501,11 +501,32 @@ window.saveClEdit=(eid,cid)=>{
 };
 window.tAC=id=>{acOpen[id]=!acOpen[id];rSchedule();if(acOpen[id])setTimeout(()=>document.getElementById('clt-'+id)?.focus(),30);};
 window.ck=(eid,cid,val)=>{cs[eid][cid]=val;saveAll();rSmry();rSchedule();};
+  window.askEvtDelete=id=>{
+  const ev=events.find(e=>e.id===id);
+  if(!ev) return;
+  const ok=window.confirm(`"${ev.title}"을(를) 휴지통으로 이동할까요?`);
+  if(!ok) return;
+  doEvt(id);
+};
 window.doEvt=id=>{
-  const ev=events.find(e=>e.id===id);if(!ev)return;
-  ev.deletedAt=fmtNow();trash.unshift({...ev});
+  const ev=events.find(e=>e.id===id);
+  if(!ev) return;
+
+  ev.deletedAt=fmtNow();
+  trash.unshift({...ev});
   events=events.filter(e=>e.id!==id);
-  if(openId===id)openId=null;delete acOpen[id];delConf=null;render();};
+
+  if(openId===id) openId=null;
+  delete acOpen[id];
+  if(editingId===id){
+    editingId=null;
+    modalOpen=false;
+  }
+
+  delConf=null;
+  saveAll();
+  render();
+};
 window.doCl=(eid,cid)=>{
   const ev=events.find(e=>e.id===eid);if(ev)ev.cl=ev.cl.filter(c=>c.id!==cid);
   delete cs[eid][cid];delClConf=null;if(editingCl===`${eid}:${cid}`)editingCl=null;saveAll();rSmry();rSchedule();};
