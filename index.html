@@ -338,7 +338,6 @@ function cardH(e){
       <div class="eact">   <button class="ib" onclick="event.stopPropagation();editEvt('${e.id}')" title="일정 수정">${E}</button>   <button class="ib del" onclick="event.stopPropagation();askEvtDelete('${e.id}')" title="휴지통으로 이동">${T}</button> </div>
       <div class="arw${isO?' op':''}">${ARW}</div>
     </div>
-    ''
     <div class="cl-wrap${isO?' op':''}">
       <div class="cl-inner">${tct===0&&!isAO?'<div style="font-size:13px;color:var(--color-text-tertiary);padding:4px 0 2px">체크리스트 항목이 없습니다</div>':''}${rows}${addBar}</div>
     </div>
